@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+            body { margin: 0 }
+        </style>
+    </head>
+    <body>
+        <div id="puzzle"></div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+        <script>
+            $(() => {
+              const wind = $(window)
+              const puzzle = $("#puzzle")
+              puzzle.css({
+                position: "relative",
+                width: "800px",
+                height: "600px",
+                border: "1px solid #333"
+              })
+          
+              const puzzlePieces = [];
+          
+              for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 8; j++) {
+                  let div = $("<div></div>")
+                  let style = {
+                    position: "absolute",
+                    width: "100px",
+                    height: "100px",
+                    boxShadow: "2px 2px 5px #333",
+                    left: rnd(850, wind.width() - 150) + "px",
+                    top: rnd(0, 600) + "px",
+                    background: `url('../img/image.jpg') ${-j * 100 + "px"} ${- i * 100 + "px"}`,
+                    transform: `rotate(${rnd(-30, 30)}deg)`
+                  }
+                  const puzzlePiece = div.css(style);
+                  puzzle.append(puzzlePiece);
+                  puzzlePieces.push(puzzlePiece);
+                }
+              }
+          
+              $("#puzzle>div").draggable({
+                snap: true,
+                start: function () {
+                  $(this).css({transform: `rotate(0)`})
+                },
+                stop: function () {
+                  $(this).css({
+                    left: Math.round($(this).offset().left / 100) * 100 + "px",
+                    top: Math.round($(this).offset().top / 100) * 100 + "px",
+                  })
+                  checkPuzzle();
+                }
+              })
+          
+              function rnd(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+              }
+          
+              function checkPuzzle() {
+                let correctCount = 0;
+                puzzlePieces.forEach(piece => {
+                    const leftPos = parseInt(piece.css("left"), 10);
+                    const topPos = parseInt(piece.css("top"), 10);
+                    const correctLeftPos = Math.floor(leftPos / 100) * 100;
+                    const correctTopPos = Math.floor(topPos / 100) * 100;
+          
+                  if (leftPos === correctLeftPos && topPos === correctTopPos) {
+                    correctCount++;
+                  }
+                });
+          
+                if (correctCount === puzzlePieces.length) {
+                  alert("You Win!");
+                }
+              }
+          
+              function autoSolvePuzzle() {
+                puzzlePieces.forEach(piece => {
+                  const index = puzzlePieces.indexOf(piece);
+                  const correctLeftPos = (index % 8) * 100;
+                  const correctTopPos = Math.floor(index / 8) * 100;
+          
+                  piece.animate({
+                    left: correctLeftPos + "px",
+                    top: correctTopPos + "px"
+                  }, 500);
+                });
+              }
+          
+              setTimeout(autoSolvePuzzle, 3000);
+            })
+          </script>
+          
+          
+    </body>
+</html>
